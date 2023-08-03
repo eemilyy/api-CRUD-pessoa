@@ -1,8 +1,7 @@
+require('dotenv').config()
 const express =  require('express');
 const mongoose = require('mongoose');
 const app = express();
-
-const Person = require('./models/Person');
 
 // enviar e ler JSON
 app.use(
@@ -13,36 +12,18 @@ app.use(
 
 app.use(express.json()); 
 
-app.post('/person', async(req, res)=>{
+const personRoutes = require('./routes/personRoute');
 
-    const {name, salary, approved} = req.body;
-
-    if(!name){
-        res.status(422).json({message: 'Insert name'})
-    }
-
-    const person = {
-        name,
-        salary,
-        approved
-    }
-
-    try {
-        await Person.create(person)
-
-        res.status(201).json({person});
-
-    } catch (error) {
-        res.status(500).json({error: error});        
-    }
-
-})
+app.use('/person', personRoutes);
 
 app.get('/', (req, res) => {
     res.json({message: 'Hello World'})
 })
 
-mongoose.connect('mongodb+srv://emily:0220@cluster0.lqtfc5g.mongodb.net/bancoapi?retryWrites=true&w=majority')
+const DB_USER = process.env.DB_USER
+const DB_PASSWORD = encodeURIComponent(process.env.DB_PASSWORD)
+
+mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.lqtfc5g.mongodb.net/bancoapi?retryWrites=true&w=majority`)
 .then(()=>{
     console.log("Conectado ao MongoDB");
     app.listen(3000);
